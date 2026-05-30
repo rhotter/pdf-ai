@@ -1,6 +1,7 @@
 import type { ComponentProps } from "react";
 import { Streamdown } from "streamdown";
 import { cn } from "@/lib/utils";
+import { CitationLink } from "./citation-link";
 
 type ResponseProps = ComponentProps<typeof Streamdown>;
 
@@ -8,6 +9,7 @@ export function Response({
   className,
   children,
   mode = "static",
+  components,
   ...props
 }: ResponseProps) {
   return (
@@ -25,6 +27,7 @@ export function Response({
         className,
       )}
       mode={mode}
+      components={{ a: CitationLink, ...components }}
       {...props}
     >
       {children}

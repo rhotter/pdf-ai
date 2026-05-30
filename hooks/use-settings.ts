@@ -4,7 +4,11 @@ import {
   modelModeStorage,
   themeStorage,
 } from "@/lib/storage";
-import { DEFAULT_MODEL_MODE, type ModelMode } from "@/lib/constants";
+import {
+  DEFAULT_MODEL_MODE,
+  normalizeModelMode,
+  type ModelMode,
+} from "@/lib/constants";
 
 export function useSettings() {
   const [openaiKey, setOpenaiKey] = useState("");
@@ -19,15 +23,15 @@ export function useSettings() {
       themeStorage.getValue(),
     ]).then(([ok, mm, t]) => {
       setOpenaiKey(ok);
-      setModelMode(mm);
+      setModelMode(normalizeModelMode(mm));
       setTheme(t);
       setLoaded(true);
     });
 
     const unwatchOk = openaiKeyStorage.watch((v) => setOpenaiKey(v ?? ""));
-    const unwatchMm = modelModeStorage.watch((v) =>
-      setModelMode(v ?? DEFAULT_MODEL_MODE),
-    );
+    const unwatchMm = modelModeStorage.watch((v) => {
+      setModelMode(normalizeModelMode(v ?? DEFAULT_MODEL_MODE));
+    });
     const unwatchT = themeStorage.watch((v) => setTheme(v ?? "system"));
 
     return () => {

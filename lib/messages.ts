@@ -7,6 +7,12 @@ export interface ChatMessage {
   reasoning?: string;
 }
 
+export interface Chat {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+}
+
 /** Messages sent from content script to background */
 export type ToBackgroundMessage =
   | {

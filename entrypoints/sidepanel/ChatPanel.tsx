@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  MessageSquare,
   X,
   Plus,
   Trash2,
@@ -10,31 +9,20 @@ import {
   Moon,
   Settings,
 } from "lucide-react";
-import { useChat } from "@/hooks/use-chat";
+import { useSidePanelChat } from "./use-sidepanel-chat";
 import { Button } from "@/components/ui/button";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
 import type { useSettings } from "@/hooks/use-settings";
 import { cn } from "@/lib/utils";
 
-interface ChatSidebarProps {
+interface ChatPanelProps {
   settings: ReturnType<typeof useSettings>;
-  shadowRoot: ShadowRoot;
-  isOpen: boolean;
-  onToggle: () => void;
-  shortcutLabel: string;
 }
 
-export function ChatSidebar({
-  settings,
-  shadowRoot,
-  isOpen,
-  onToggle,
-  shortcutLabel,
-}: ChatSidebarProps) {
+export function ChatPanel({ settings }: ChatPanelProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showChats, setShowChats] = useState(false);
-  const [fabHovered, setFabHovered] = useState(false);
 
   const {
     chats,
@@ -47,43 +35,15 @@ export function ChatSidebar({
     newChat,
     deleteChat,
     switchChat,
-  } = useChat({
+  } = useSidePanelChat({
     apiKey: settings.apiKey,
     modelMode: settings.modelMode,
   });
 
-  // Floating action button when closed
-  if (!isOpen) {
-    return (
-      <div
-        className="fixed right-4 bottom-4 z-[2147483647] flex items-center gap-2"
-        style={{ pointerEvents: "auto" }}
-        onMouseEnter={() => setFabHovered(true)}
-        onMouseLeave={() => setFabHovered(false)}
-      >
-        {fabHovered && (
-          <div className="rounded-lg bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-md border border-border whitespace-nowrap">
-            Chat with PDF
-            <kbd className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] font-mono text-muted-foreground">
-              {shortcutLabel}
-            </kbd>
-          </div>
-        )}
-        <button
-          onClick={onToggle}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
-          aria-label="Open PDF Chat"
-        >
-          <MessageSquare className="h-5 w-5" />
-        </button>
-      </div>
-    );
-  }
-
   // Settings view
   if (showSettings) {
     return (
-      <div className="fixed top-0 right-0 z-[2147483647] flex h-screen w-[400px] flex-col border-l border-border bg-background text-foreground shadow-xl" style={{ pointerEvents: "auto" }}>
+      <div className="flex h-full flex-col bg-background text-foreground">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <span className="text-sm font-semibold">Settings</span>
           <Button
@@ -106,7 +66,7 @@ export function ChatSidebar({
   }
 
   return (
-    <div className="fixed top-0 right-0 z-[2147483647] flex h-screen w-[400px] flex-col border-l border-border bg-background text-foreground shadow-xl" style={{ pointerEvents: "auto" }}>
+    <div className="flex h-full flex-col bg-background text-foreground">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-1">
@@ -145,14 +105,6 @@ export function ChatSidebar({
             aria-label="Settings"
           >
             <Settings className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onToggle}
-            aria-label={`Close sidebar (${shortcutLabel})`}
-          >
-            <X className="h-4 w-4" />
           </Button>
         </div>
       </div>

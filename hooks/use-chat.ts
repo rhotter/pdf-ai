@@ -1,23 +1,21 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { PORT_NAME } from "@/lib/constants";
 import type { ModelMode } from "@/lib/constants";
 import { generateId } from "@/lib/utils";
 import { fetchPdfAsBase64 } from "@/lib/pdf-detection";
-import type {
-  ChatMessage,
-  ToBackgroundMessage,
-  ToContentMessage,
-} from "@/lib/messages";
+import { loadChatHistory, saveChatHistory } from "@/lib/storage";
+import type { Chat, ChatMessage, ToBackgroundMessage, ToContentMessage } from "@/lib/messages";
 
-export interface Chat {
-  id: string;
-  title: string;
-  messages: ChatMessage[];
-}
+export type { Chat };
 
 interface UseChatOptions {
   apiKey: string;
   modelMode: ModelMode;
+}
+
+/** Strip fragment so #page=X changes don't create separate histories */
+function getPdfUrl(): string {
+  return window.location.href.split("#")[0];
 }
 
 export function useChat({ apiKey, modelMode }: UseChatOptions) {
@@ -28,6 +26,29 @@ export function useChat({ apiKey, modelMode }: UseChatOptions) {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const portRef = useRef<chrome.runtime.Port | null>(null);
+  const loadedRef = useRef(false);
+  const pdfUrl = useRef(getPdfUrl());
+
+  // Load chats from storage on mount
+  useEffect(() => {
+    const url = pdfUrl.current;
+    loadChatHistory(url).then((stored) => {
+      if (stored && stored.chats.length > 0) {
+        setChats(stored.chats);
+        setActiveChatId(stored.activeChatId);
+      }
+      loadedRef.current = true;
+    });
+  }, []);
+
+  // Save chats to storage when they change (debounced)
+  useEffect(() => {
+    if (!loadedRef.current) return;
+    const timeout = setTimeout(() => {
+      saveChatHistory(pdfUrl.current, { chats, activeChatId });
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [chats, activeChatId]);
 
   const activeChat = chats.find((c) => c.id === activeChatId) ?? chats[0];
   const messages = activeChat.messages;

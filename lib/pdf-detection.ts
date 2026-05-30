@@ -14,11 +14,27 @@ export function isPdfPage(): boolean {
 
 let cachedPdfBase64: string | null = null;
 
+async function fetchPdfBlob(): Promise<Blob> {
+  if (location.protocol === "file:") {
+    // fetch() doesn't support file:// URLs, use XHR instead
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", location.href, true);
+      xhr.responseType = "blob";
+      xhr.onload = () => resolve(xhr.response);
+      xhr.onerror = () =>
+        reject(new Error("Failed to load local PDF. Make sure 'Allow access to file URLs' is enabled in the extension settings."));
+      xhr.send();
+    });
+  }
+  const response = await fetch(location.href);
+  return response.blob();
+}
+
 export async function fetchPdfAsBase64(): Promise<string> {
   if (cachedPdfBase64) return cachedPdfBase64;
 
-  const response = await fetch(location.href);
-  const blob = await response.blob();
+  const blob = await fetchPdfBlob();
 
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

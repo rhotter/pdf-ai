@@ -1,9 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { SendIcon, SquareIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { MODEL_MODES, type ModelMode } from "@/lib/constants";
+import { MODEL_OPTIONS, type ModelMode } from "@/lib/constants";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -23,6 +23,12 @@ export function ChatInput({
   onModelModeChange,
 }: ChatInputProps) {
   const [input, setInput] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Focus the textarea when the sidebar opens
+  useEffect(() => {
+    textareaRef.current?.focus();
+  }, []);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -63,6 +69,7 @@ export function ChatInput({
         className="w-full overflow-hidden rounded-xl border border-border bg-background shadow-sm"
       >
         <Textarea
+          ref={textareaRef}
           value={input}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
@@ -99,7 +106,7 @@ export function ChatInput({
   );
 }
 
-/** Native <select> for model mode — avoids Radix portal overlay that darkens the PDF page. */
+/** Native <select> for model mode */
 function ModelModeSelect({
   modelMode,
   onChange,
@@ -117,7 +124,7 @@ function ModelModeSelect({
         "focus:outline-none focus:ring-0",
       )}
     >
-      {MODEL_MODES.map((mode) => (
+      {MODEL_OPTIONS.map((mode) => (
         <option key={mode.value} value={mode.value}>
           {mode.label}
         </option>

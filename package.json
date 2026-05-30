@@ -1,8 +1,8 @@
 {
-  "name": "pdf-ai",
+  "name": "readatron",
   "description": "Chrome extension that adds an AI chat sidebar to PDF pages",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -11,6 +11,7 @@
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
+    "upload:chrome": "wxt zip && chrome-webstore-upload upload --source .output/readatron-$npm_package_version-chrome.zip",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "@types/react-dom": "^19.0.0",
     "@wxt-dev/module-react": "^1.1.2",
     "autoprefixer": "^10.4.20",
+    "chrome-webstore-upload-cli": "^3.5.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",

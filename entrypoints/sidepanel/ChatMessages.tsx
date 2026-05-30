@@ -15,7 +15,6 @@ export function ChatMessages({ messages, isStreaming }: ChatMessagesProps) {
   if (messages.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
-        <div className="mb-3 text-4xl">📄</div>
         <h3 className="mb-1 text-lg font-semibold text-foreground">
           Chat with this PDF
         </h3>
