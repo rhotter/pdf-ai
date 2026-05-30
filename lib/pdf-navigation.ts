@@ -1,11 +1,23 @@
 export function navigateToPage(page: number): void {
   // When running in the side panel, send a message to the content script.
   // When running in the content script, navigate directly.
-  if (chrome?.tabs) {
+  if (typeof chrome !== "undefined" && chrome.tabs) {
     // Side panel context — message the content script
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
       if (tab?.id) {
-        chrome.tabs.sendMessage(tab.id, { type: "navigate-to-page", page });
+        chrome.tabs.sendMessage(
+          tab.id,
+          { type: "navigate-to-page", page },
+          () => {
+            const errorMessage = chrome.runtime.lastError?.message;
+            if (errorMessage) {
+              console.warn(
+                "Readatron could not navigate the PDF tab",
+                errorMessage,
+              );
+            }
+          },
+        );
       }
     });
   } else {

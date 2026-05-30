@@ -139,10 +139,18 @@ async function fetchPdfFromContentScript(
 ): Promise<string> {
   await ensurePdfContentScript(tabId, url);
 
-  const response = await sendTabMessage<{
-    pdfBase64?: string;
-    error?: string;
-  }>(tabId, { type: "get-pdf" });
+  let response: { pdfBase64?: string; error?: string } | undefined;
+  try {
+    response = await sendTabMessage<{
+      pdfBase64?: string;
+      error?: string;
+    }>(tabId, { type: "get-pdf" });
+  } catch (err) {
+    if (isMissingReceiverError(err)) {
+      throw createMissingContentScriptError(url);
+    }
+    throw err;
+  }
 
   if (response?.error) {
     throw new Error(response.error);
